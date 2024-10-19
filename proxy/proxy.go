@@ -16,11 +16,11 @@ func main() {
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
-		go Tunnel(conn)
+		go handle(conn)
 	}
 }
 
-func Tunnel(conn net.Conn) {
+func handle(conn net.Conn) {
 	dest, err := net.Dial("tcp", ":8081")
 	if err != nil {
 		log.Fatalln(err.Error())
